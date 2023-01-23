@@ -3,7 +3,9 @@
 *.o~
 *.*~
 *~
+*.exe
 data/
+src/myProgram
 
 # Prerequisites
 *.d
