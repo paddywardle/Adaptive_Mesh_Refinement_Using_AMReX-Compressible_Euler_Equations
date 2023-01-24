@@ -5,32 +5,31 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <Eigen/Dense>
 
-std::vector<std::array<double, 3>> Euler1D::prim_to_con(std::vector<std::array<double, 3>> u_p)
+Eigen::MatrixXd Euler1D::prim_to_con(Eigen::MatrixXd u_p)
 {
-  std::vector<std::array<double, 3>> u_c;
-  u_c.resize(nCells+2);
+  Eigen::MatrixXd u_c(nCells+2, 3);
   
-  for (int i=0; i<u_p.size(); i++)
+  for (int i=0; i<u_p.rows(); i++)
     {
-      u_c[i][0] = u_p[i][0];
-      u_c[i][1] = u_p[i][0] * u_p[i][1];
-      u_c[i][2] = u_p[i][2]/(gamma-1.0) + 0.5 * u_p[i][0] * pow(u_p[i][1], 2.0);
+      u_c(i, 0) = u_p(i, 0);
+      u_c(i, 1) = u_p(i, 0) * u_p(i, 1);
+      u_c(i, 2) = u_p(i, 2)/(gamma-1.0) + 0.5 * u_p(i, 0) * pow(u_p(i, 1), 2.0);
     }
 
   return u_c;
 }
 
-std::vector<std::array<double, 3>> Euler1D::con_to_prim(std::vector<std::array<double, 3>> u_c)
+Eigen::MatrixXd Euler1D::con_to_prim(Eigen::MatrixXd u_c)
 {
-  std::vector<std::array<double, 3>> u_p;
-  u_p.resize(nCells+2);
+  Eigen::MatrixXd u_p(nCells+2, 3);
   
-  for (int i=0; i<u_c.size(); i++)
+  for (int i=0; i<u_c.rows(); i++)
     {
-      u_p[i][0] = u_c[i][0];
-      u_p[i][1] = u_c[i][1] / u_c[i][0];
-      u_p[i][2] = (u_c[i][2] - 0.5 * u_p[i][0]*pow(u_p[i][1],2.0)) * (gamma - 1.0);
+      u_p(i, 0) = u_c(i, 0);
+      u_p(i, 1) = u_c(i, 1) / u_c(i, 0);
+      u_p(i, 2) = (u_c(i, 2) - 0.5 * u_p(i, 0)*pow(u_p(i, 2),2.0)) * (gamma - 1.0);
     }
 
   return u_p;

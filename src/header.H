@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <Eigen/Dense>
 
 class Euler1D
 {
@@ -24,11 +25,11 @@ private:
   double nCells;
   double dx = (x1-x0)/nCells;
 
-  std::vector<std::array<double, 3>> u;
+  Eigen::MatrixXd u;
 
-  std::vector<std::array<double, 3>> uPlus1;
+  Eigen::MatrixXd uPlus1;
 
-  std::vector<std::array<double, 3>> u_prim;
+  Eigen::MatrixXd u_prim;
 
   // private member functions
 
@@ -36,9 +37,9 @@ private:
 
   void initial_conds();
 
-  std::vector<std::array<double, 3>> prim_to_con(std::vector<std::array<double, 3>>);
+  Eigen::MatrixXd prim_to_con(Eigen::MatrixXd);
 
-  std::vector<std::array<double, 3>> con_to_prim(std::vector<std::array<double, 3>>);
+  Eigen::MatrixXd con_to_prim(Eigen::MatrixXd);
 
   double deltai_func(double, double, double, double);
 
@@ -64,13 +65,13 @@ private:
 
   double flux_fn_E(double, double, double);
 
-  double lax_friedrich_flux(std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, int, double);
+  double lax_friedrich_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
 
-  double richtmyer_flux(std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, int, double);
+  double richtmyer_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
 
-  double half_time_step_flux(std::array<double, 3>, std::array<double, 3>, int);
+  double half_time_step_flux(Eigen::MatrixXd, Eigen::MatrixXd, int);
 
-  double FORCE_flux(std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, int, double);
+  double FORCE_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
 
   void solvers();
     

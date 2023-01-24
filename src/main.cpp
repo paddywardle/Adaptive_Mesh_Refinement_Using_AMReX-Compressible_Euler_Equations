@@ -2,6 +2,7 @@
 #include <array>
 #include <iostream>
 #include "header.H"
+
 int main()
 {
   double x0 = 0.0;

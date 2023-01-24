@@ -11,7 +11,8 @@ Euler1D::Euler1D(int nCells, double tStart, double tStop, double x0, double x1, 
 
 void Euler1D::resize_matrix()
 {
-  u.resize(nCells+2);
-  uPlus1.resize(nCells+2);
-  u_prim.resize(nCells+2);
+  u.resize(nCells+2, 3);
+  uPlus1.resize(nCells+2, 3);
+  u_prim.resize(nCells+2, 3);
 }
+
