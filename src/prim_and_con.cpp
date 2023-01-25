@@ -1,11 +1,4 @@
 #include "header.H"
-#include <vector>
-#include <array>
-#include <cmath>
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <Eigen/Dense>
 
 Eigen::MatrixXd Euler1D::prim_to_con(Eigen::MatrixXd u_p)
 {

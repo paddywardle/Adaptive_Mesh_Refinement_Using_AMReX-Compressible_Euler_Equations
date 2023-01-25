@@ -1,11 +1,4 @@
 #include "header.H"
-#include <vector>
-#include <array>
-#include <cmath>
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <Eigen/Dense>
 
 double Euler1D::flux_fn_rho(double rho, double v)
 {

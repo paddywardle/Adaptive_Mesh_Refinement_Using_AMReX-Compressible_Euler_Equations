@@ -1,6 +1,3 @@
-#include <vector>
-#include <array>
-#include <iostream>
 #include "header.H"
 
 int main()

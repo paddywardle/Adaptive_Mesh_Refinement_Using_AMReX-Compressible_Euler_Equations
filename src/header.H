@@ -1,6 +1,10 @@
 #include <vector>
-#include <string>
 #include <array>
+#include <string>
+#include <cmath>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 #include <Eigen/Dense>
 
 class Euler1D
