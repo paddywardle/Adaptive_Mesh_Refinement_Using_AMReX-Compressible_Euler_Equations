@@ -1,0 +1,6 @@
+CFD: {
+     SpatialDomain: {x0 = 0.0; x1 = 1.0; nCells = 100;};
+     TemporalDomain: {tStart = 0.0; tStop = 0.25;};
+     EOS: {eos = "ideal_gas"; gamma = 1.4;};
+     C = 0.8;
+}
