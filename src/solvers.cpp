@@ -22,18 +22,22 @@ double Euler1D::half_time_step_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_prim_
 {
   
   double f_u;
+  double rho = u_i(0);
+  double energy = u_i(2);
+  double velocity = u_prim_i(1);
+  double pressure = u_prim_i(2);
   
   if (col == 0)
     {
-      f_u = flux_fn_rho(u_i.col(0), u_prim_i.col(1));
+      f_u = flux_fn_rho(rho, velocity);
     }
   else if (col == 1)
     {
-      f_u = flux_fn_mom(u_i.col(0), u_prim_i.col(1), u_prim_i.col(2));
+      f_u = flux_fn_mom(rho, velocity, pressure);
     }
   else if (col == 2)
     {
-      f_u = flux_fn_E(u_i.col(2), u_prim_i.col(1), u_prim_i.col(2));
+      f_u = flux_fn_E(energy, velocity, pressure);
     }
 
   return f_u;
@@ -48,7 +52,7 @@ double Euler1D::calculate_timestep()
 
   u_prim = con_to_prim(u);
   
-  for (int i=0; i<u.size(); i++)
+  for (int i=0; i<u.rows(); i++)
     {
       double cs = sqrt((gamma*u_prim(i, 2))/u_prim(i, 0));
       wave_speed[i] = abs(u_prim(i, 1)) + cs;
@@ -125,15 +129,15 @@ double Euler1D::lax_friedrich_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1
   
   if (col == 0)
     {
-      fhalf = 0.5 * (dx / dt) * (u_i.col(0) - u_iPlus1.col(0)) + 0.5 * (flux_fn_rho(u_iPlus1.col(0), u_prim_iPlus1.col(0)) + flux_fn_rho(u_i.col(0), u_prim_i.col(0)));
+      fhalf = 0.5 * (dx / dt) * (u_i(0) - u_iPlus1(0)) + 0.5 * (flux_fn_rho(u_iPlus1(0), u_prim_iPlus1(0)) + flux_fn_rho(u_i(0), u_prim_i(0)));
     }
   else if (col == 1)
     {
-      fhalf = 0.5 * (dx / dt) * (u_i.col(1) - u_iPlus1.col.col(1)) + 0.5 * (flux_fn_mom(u_iPlus1.col(0), u_prim_iPlus1.col(1), u_prim_iPlus1.col(2)) + flux_fn_mom(u_i.col(0), u_prim_i.col(1), u_prim_i.col(2)));
+      fhalf = 0.5 * (dx / dt) * (u_i(1) - u_iPlus1(1)) + 0.5 * (flux_fn_mom(u_iPlus1(0), u_prim_iPlus1(1), u_prim_iPlus1(2)) + flux_fn_mom(u_i(0), u_prim_i(1), u_prim_i(2)));
     }
   else if (col == 2)
     {
-      fhalf = 0.5 * (dx / dt) * (u_i.col(2) - u_iPlus1.col(2)) + 0.5 * (flux_fn_E(u_iPlus1.col(2), u_prim_iPlus1.col(1), u_prim_iPlus1.col(2)) + flux_fn_E(u_i.col(2), u_prim_i.col(1), u_prim_i.col(2)));
+      fhalf = 0.5 * (dx / dt) * (u_i(2) - u_iPlus1(2)) + 0.5 * (flux_fn_E(u_iPlus1(2), u_prim_iPlus1(1), u_prim_iPlus1(2)) + flux_fn_E(u_i(2), u_prim_i(1), u_prim_i(2)));
     }
 
   return fhalf;
@@ -141,11 +145,11 @@ double Euler1D::lax_friedrich_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1
 
 double Euler1D::richtmyer_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, int col, double dt)
 {
-  double uhalf_rho = 0.5 * (u_i.col(0) + u_iPlus1.col(0)) - 0.5 * (dt / dx) * (flux_fn_rho(u_iPlus1.col(0), u_prim_iPlus1.col(1)) - flux_fn_rho(u_i.col(0), u_prim_i.col(1)));
+  double uhalf_rho = 0.5 * (u_i(0) + u_iPlus1(0)) - 0.5 * (dt / dx) * (flux_fn_rho(u_iPlus1(0), u_prim_iPlus1(1)) - flux_fn_rho(u_i(0), u_prim_i(1)));
 
-  double uhalf_mom = 0.5 * (u_i.col(1) + u_iPlus1.col(1)) - 0.5 * (dt / dx) * (flux_fn_mom(u_iPlus1.col(0), u_prim_iPlus1.col(1), u_prim_iPlus1.col(2)) - flux_fn_mom(u_i.col(0), u_prim_i.col(1), u_prim_i.col(2)));
+  double uhalf_mom = 0.5 * (u_i(1) + u_iPlus1(1)) - 0.5 * (dt / dx) * (flux_fn_mom(u_iPlus1(0), u_prim_iPlus1(1), u_prim_iPlus1(2)) - flux_fn_mom(u_i(0), u_prim_i(1), u_prim_i(2)));
 
-  double uhalf_E = 0.5 * (u_i.col(2) + u_iPlus1.col(2)) - 0.5 * (dt / dx) * (flux_fn_E(u_iPlus1.col(2), u_prim_iPlus1.col(1), u_prim_iPlus1.col(2)) - flux_fn_E(u_i.col(2), u_prim_i.col(1), u_prim_i.col(2)));
+  double uhalf_E = 0.5 * (u_i(2) + u_iPlus1(2)) - 0.5 * (dt / dx) * (flux_fn_E(u_iPlus1(2), u_prim_iPlus1(1), u_prim_iPlus1(2)) - flux_fn_E(u_i(2), u_prim_i(1), u_prim_i(2)));
 
   double uhalf_v = uhalf_mom / uhalf_rho;
 
@@ -184,15 +188,17 @@ void Euler1D::solvers()
   // set current time to simulation start time
   double t = tStart;
 
-  Eigen::MatrixXd flux(nCells+1, 3);
-  Eigen::MatrixXd uL(nCells, 3);
-  Eigen::MatrixXd uR(nCells, 3);
-  Eigen::MatrixXd uL_prim(nCells, 3);
-  Eigen::MatrixXd uR_prim(nCells, 3);
-  Eigen::MatrixXd uLhalf(nCells, 3);
-  Eigen::MatrixXd uRhalf(nCells, 3);
-  Eigen::MatrixXd uLhalf_prim(nCells, 3);
-  Eigen::MatrixXd uRhalf_prim(nCells, 3);
+  //std::cout<<typeof(&nCells)<<std::endl;
+
+  Eigen::MatrixXd flux(101, 3);
+  Eigen::MatrixXd uL(100, 3);
+  Eigen::MatrixXd uR(100, 3);
+  Eigen::MatrixXd uL_prim(100, 3);
+  Eigen::MatrixXd uR_prim(100, 3);
+  Eigen::MatrixXd uLhalf(100, 3);
+  Eigen::MatrixXd uRhalf(100, 3);
+  Eigen::MatrixXd uLhalf_prim(100, 3);
+  Eigen::MatrixXd uRhalf_prim(100, 3);
 
   do {
     // calculate timestep based on initial data
@@ -210,21 +216,24 @@ void Euler1D::solvers()
 	u(0,i) = u(1, i);
 	u(nCells+1, i) = u(nCells, i);
       }
+    std::cout<<"Hello"<<std::endl;
 
     // boundary extrapolation loop
     for (int i=1; i<nCells; i++)
       {
 	for (int j=0; j<u.cols(); j++)
 	  {
-	    r = slope_limiter(u(i, j), u(i+1, j), u(i-1, j));
-	    XiL = reconstruction_XiL(r);
-	    XiR = reconstruction_XiR(r);
-	    Xi = minibee(r, XiR);
-	    deltai = deltai_func(u(i, j), u(i, j), u(i-1, j));
-	    uL(i, j) = reconstruction_uL(u(i, j), Xi(i, j), deltai(i, j));
-	    uR(i, j) = reconstruction_uR(u(i, j), Xi(i, j), deltai(i, j));
+	    double r = slope_limiter(u(i, j), u(i+1, j), u(i-1, j));
+	    double XiL = reconstruction_XiL(r);
+	    double XiR = reconstruction_XiR(r);
+	    double Xi = minibee(r, XiR);
+	    double deltai = deltai_func(u(i, j), u(i+1, j), u(i-1, j));
+	    uL(i, j) = reconstruction_uL(u(i, j), Xi, deltai);
+	    uR(i, j) = reconstruction_uR(u(i, j), Xi, deltai);
 	  }
       }
+
+    std::cout<<"Hello2"<<std::endl;
 
     uL_prim = con_to_prim(uL);
     uR_prim = con_to_prim(uR);
@@ -239,18 +248,23 @@ void Euler1D::solvers()
 	  }
       }
 
+    std::cout<<"Hello3"<<std::endl;
+
     uLhalf_prim = con_to_prim(uLhalf);
     uRhalf_prim = con_to_prim(uRhalf);
 
+    std::cout<<flux.rows()<<" "<<flux.cols()<<std::endl;
+    std::cout<<uLhalf.rows()<<" "<<uLhalf.cols()<<std::endl;
+
     // flux calculation
-    for (int i=0; i<flux.rows(); i++)
+    for (int i=0; i<nCells; i++)
       {
 	for (int j=0; j<flux.cols(); j++)
 	  {
 	    flux(i, j) = FORCE_flux(uLhalf.row(i), uRhalf.row(i), uLhalf_prim.row(i), uRhalf_prim.row(i), j, dt);
 	  }
       }
-
+    std::cout<<"Hello4"<<std::endl;
     // solution update loop
     for (int i = 1; i<nCells+1; i++)
       {
