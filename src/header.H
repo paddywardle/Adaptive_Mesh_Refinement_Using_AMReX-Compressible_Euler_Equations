@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <Eigen/Dense>
+#include <libconfig.h++>
+#include <eigen3/Eigen/Dense>
 
 class Euler1D
 {
