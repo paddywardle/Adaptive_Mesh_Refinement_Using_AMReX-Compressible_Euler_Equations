@@ -92,6 +92,10 @@ double Euler1D::reconstruction_uR(double u_i, double Xi, double deltai)
 double Euler1D::slope_limiter(double u_i, double u_iPlus1, double u_iMinus1)
 {
   // calculates slope ratio value
+  //std::cout<<u_i<<" "<<u_iPlus1<<" "<<u_iMinus1<<std::endl;
+  if (deltai_half(u_i, u_iPlus1) == 0){
+    return 0;
+  }
   return deltai_half(u_iMinus1, u_i) / deltai_half(u_i, u_iPlus1);
 }
 
@@ -188,18 +192,17 @@ void Euler1D::solvers()
   // set current time to simulation start time
   double t = tStart;
 
-  //std::cout<<typeof(&nCells)<<std::endl;
-
-  Eigen::MatrixXd flux(101, 3);
-  Eigen::MatrixXd uL(100, 3);
-  Eigen::MatrixXd uR(100, 3);
-  Eigen::MatrixXd uL_prim(100, 3);
-  Eigen::MatrixXd uR_prim(100, 3);
-  Eigen::MatrixXd uLhalf(100, 3);
-  Eigen::MatrixXd uRhalf(100, 3);
-  Eigen::MatrixXd uLhalf_prim(100, 3);
-  Eigen::MatrixXd uRhalf_prim(100, 3);
-
+  Eigen::MatrixXd flux(nCells+1, 3);
+  Eigen::MatrixXd uL(nCells, 3);
+  Eigen::MatrixXd uR(nCells, 3);
+  Eigen::MatrixXd uL_prim(nCells, 3);
+  Eigen::MatrixXd uR_prim(nCells, 3);
+  Eigen::MatrixXd uLhalf(nCells, 3);
+  Eigen::MatrixXd uRhalf(nCells, 3);
+  Eigen::MatrixXd uLhalf_prim(nCells, 3);
+  Eigen::MatrixXd uRhalf_prim(nCells, 3);
+  //std::cout<<u<<std::endl;
+  
   do {
     // calculate timestep based on initial data
     double dt = calculate_timestep();
@@ -216,7 +219,8 @@ void Euler1D::solvers()
 	u(0,i) = u(1, i);
 	u(nCells+1, i) = u(nCells, i);
       }
-    std::cout<<"Hello"<<std::endl;
+
+    //std::cout<<u<<std::endl;
 
     // boundary extrapolation loop
     for (int i=1; i<nCells; i++)
@@ -230,11 +234,11 @@ void Euler1D::solvers()
 	    double deltai = deltai_func(u(i, j), u(i+1, j), u(i-1, j));
 	    uL(i, j) = reconstruction_uL(u(i, j), Xi, deltai);
 	    uR(i, j) = reconstruction_uR(u(i, j), Xi, deltai);
+	    //std::cout<<u(i, j)<<" "<<u(i+1, j)<<" "<<u(i-1, j)<<std::endl;
+	    std::cout<<r<<" "<<XiL<<" "<<XiR<<" "<<Xi<<" "<<deltai<<std::endl;
 	  }
       }
-
-    std::cout<<"Hello2"<<std::endl;
-
+    
     uL_prim = con_to_prim(uL);
     uR_prim = con_to_prim(uR);
 
@@ -248,13 +252,8 @@ void Euler1D::solvers()
 	  }
       }
 
-    std::cout<<"Hello3"<<std::endl;
-
     uLhalf_prim = con_to_prim(uLhalf);
     uRhalf_prim = con_to_prim(uRhalf);
-
-    std::cout<<flux.rows()<<" "<<flux.cols()<<std::endl;
-    std::cout<<uLhalf.rows()<<" "<<uLhalf.cols()<<std::endl;
 
     // flux calculation
     for (int i=0; i<nCells; i++)
@@ -264,7 +263,7 @@ void Euler1D::solvers()
 	    flux(i, j) = FORCE_flux(uLhalf.row(i), uRhalf.row(i), uLhalf_prim.row(i), uRhalf_prim.row(i), j, dt);
 	  }
       }
-    std::cout<<"Hello4"<<std::endl;
+    
     // solution update loop
     for (int i = 1; i<nCells+1; i++)
       {
