@@ -3,7 +3,6 @@
 Eigen::MatrixXd Euler1D::Euler_flux_fn(Eigen::MatrixXd f, Eigen::MatrixXd f_prim)
 {
   
-  
   Eigen::MatrixXd flux_fn(f.rows(), f.cols());
   
   for (int i=0; i<f.rows(); i++)
@@ -38,32 +37,6 @@ double Euler1D::flux_fn_E(double E, double v, double p)
 {
   // flux function for total energy
   return (E + p) * v;
-}
-
-double Euler1D::half_time_step_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_prim_i, int col)
-{
-  
-  double f_u;
-  double rho = u_i(0);
-  double energy = u_i(2);
-  double velocity = u_prim_i(1);
-  double pressure = u_prim_i(2);
-  
-  if (col == 0)
-    {
-      f_u = flux_fn_rho(rho, velocity);
-    }
-  else if (col == 1)
-    {
-      f_u = flux_fn_mom(rho, velocity, pressure);
-    }
-  else if (col == 2)
-    {
-      f_u = flux_fn_E(energy, velocity, pressure);
-    }
-
-  return f_u;
-
 }
 
 double Euler1D::calculate_timestep()
@@ -121,7 +94,7 @@ double Euler1D::reconstruction_XiR(double r)
   return 2.0 / (1.0 + r);
 }
 
-double Euler1D::minibee(double r, double XiR)
+double Euler1D::minbee(double r, double XiR)
 {
   if (r <= 0.0)
     {
@@ -137,59 +110,40 @@ double Euler1D::minibee(double r, double XiR)
     }
 }
 
-double Euler1D::lax_friedrich_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, int col, double dt)
+Eigen::MatrixXd Euler1D::lax_friedrich_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1,  Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, double dt)
 {
-  double fhalf;
+
+  Eigen::MatrixXd fhalf(u_i.rows(), u_i.cols());
+
+  fhalf = 0.5 * (dx / dt) * (u_i - u_iPlus1) + 0.5 * (Euler_flux_fn(u_iPlus1, u_prim_iPlus1) - Euler_flux_fn(u_i, u_prim_i));
   
-  if (col == 0)
-    {
-      fhalf = 0.5 * (dx / dt) * (u_i(0) - u_iPlus1(0)) + 0.5 * (flux_fn_rho(u_iPlus1(0), u_prim_iPlus1(0)) + flux_fn_rho(u_i(0), u_prim_i(0)));
-    }
-  else if (col == 1)
-    {
-      fhalf = 0.5 * (dx / dt) * (u_i(1) - u_iPlus1(1)) + 0.5 * (flux_fn_mom(u_iPlus1(0), u_prim_iPlus1(1), u_prim_iPlus1(2)) + flux_fn_mom(u_i(0), u_prim_i(1), u_prim_i(2)));
-    }
-  else if (col == 2)
-    {
-      fhalf = 0.5 * (dx / dt) * (u_i(2) - u_iPlus1(2)) + 0.5 * (flux_fn_E(u_iPlus1(2), u_prim_iPlus1(1), u_prim_iPlus1(2)) + flux_fn_E(u_i(2), u_prim_i(1), u_prim_i(2)));
-    }
+  return fhalf;
+}
+
+Eigen::MatrixXd Euler1D::richtmyer_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1,  double dt)
+{
+
+  Eigen::MatrixXd uhalf(u_i.rows(), u_i.cols());
+  Eigen::MatrixXd fhalf(u_i.rows(), u_i.cols());
+
+  uhalf = 0.5 * (u_i - u_iPlus1) - 0.5 * (dt / dx) * (Euler_flux_fn(u_iPlus1, u_prim_iPlus1) - Euler_flux_fn(u_i, u_prim_i));
+
+  fhalf = Euler_flux_fn(uhalf, con_to_prim(uhalf));
 
   return fhalf;
 }
 
-double Euler1D::richtmyer_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, int col, double dt)
+Eigen::MatrixXd Euler1D::FORCE_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, double dt)
 {
-  double uhalf_rho = 0.5 * (u_i(0) + u_iPlus1(0)) - 0.5 * (dt / dx) * (flux_fn_rho(u_iPlus1(0), u_prim_iPlus1(1)) - flux_fn_rho(u_i(0), u_prim_i(1)));
+  Eigen::MatrixXd fhalf(u_i.rows(), u_i.cols());
 
-  double uhalf_mom = 0.5 * (u_i(1) + u_iPlus1(1)) - 0.5 * (dt / dx) * (flux_fn_mom(u_iPlus1(0), u_prim_iPlus1(1), u_prim_iPlus1(2)) - flux_fn_mom(u_i(0), u_prim_i(1), u_prim_i(2)));
+  fhalf = lax_friedrich_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, dt);
+  std::cout<<fhalf.rows()<<" "<<fhalf.cols()<<std::endl;
 
-  double uhalf_E = 0.5 * (u_i(2) + u_iPlus1(2)) - 0.5 * (dt / dx) * (flux_fn_E(u_iPlus1(2), u_prim_iPlus1(1), u_prim_iPlus1(2)) - flux_fn_E(u_i(2), u_prim_i(1), u_prim_i(2)));
+  fhalf = richtmyer_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, dt);
+  std::cout<<fhalf.rows()<<" "<<fhalf.cols()<<std::endl;
 
-  double uhalf_v = uhalf_mom / uhalf_rho;
-
-  double uhalf_p = (uhalf_E - 0.5 * uhalf_rho * pow(uhalf_v, 2.0)) * (gamma - 1);
-
-  double fhalf;
-  
-  if (col == 0)
-    {
-      fhalf = flux_fn_rho(uhalf_rho, uhalf_v);
-    }
-  else if (col == 1)
-    {
-      fhalf = flux_fn_mom(uhalf_rho, uhalf_v, uhalf_p);
-    }
-  else if (col == 2)
-    {
-      fhalf = flux_fn_E(uhalf_E, uhalf_v, uhalf_p);
-    }
-
-  return fhalf;
-}
-
-double Euler1D::FORCE_flux(Eigen::MatrixXd u_i, Eigen::MatrixXd u_iPlus1, Eigen::MatrixXd u_prim_i, Eigen::MatrixXd u_prim_iPlus1, int col, double dt)
-{
-  double fhalf = 0.5 * (lax_friedrich_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, col, dt) + richtmyer_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, col, dt));
+  fhalf = 0.5 * (lax_friedrich_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, dt) + richtmyer_flux(u_i, u_iPlus1, u_prim_i, u_prim_iPlus1, dt));
 
   return fhalf;
 }
@@ -243,7 +197,7 @@ void Euler1D::solvers()
 	  {
 	    double r = slope_limiter(u(i+1, j), u(i+2, j), u(i, j));
 	    double XiR = reconstruction_XiR(r);
-	    double Xi = minibee(r, XiR);
+	    double Xi = minbee(r, XiR);
 	    double deltai = deltai_func(u(i+1, j), u(i+2, j), u(i, j));
 	    uL(i, j) = reconstruction_uL(u(i+1, j), Xi, deltai);
 	    uR(i, j) = reconstruction_uR(u(i+1, j), Xi, deltai);
@@ -256,6 +210,7 @@ void Euler1D::solvers()
 
     uL_flux = Euler_flux_fn(uL, uL_prim);
     uR_flux = Euler_flux_fn(uR, uR_prim);
+    std::cout<<uL_prim<<std::endl;
 
     // half-time step update
     uLhalf = uL - 0.5 * (dt / dx) * (uR_flux - uL_flux);
@@ -264,14 +219,9 @@ void Euler1D::solvers()
     uLhalf_prim = con_to_prim(uLhalf);
     uRhalf_prim = con_to_prim(uRhalf);
 
-    // flux calculation
-    for (int i=0; i<nCells+1; i++)
-      {
-	for (int j=0; j<flux.cols(); j++)
-	  {
-	    flux(i, j) = FORCE_flux(uLhalf.row(i), uRhalf.row(i), uLhalf_prim.row(i), uRhalf_prim.row(i), j, dt);
-	  }
-      }
+    std::cout<<flux.rows()<<" "<<flux.cols()<<std::endl;
+    flux = FORCE_flux(uLhalf, uRhalf, uLhalf, uRhalf_prim, dt);
+    std::cout<<flux.rows()<<" "<<flux.cols()<<std::endl;
     
     // solution update loop
     for (int i = 2; i<nCells+2; i++)

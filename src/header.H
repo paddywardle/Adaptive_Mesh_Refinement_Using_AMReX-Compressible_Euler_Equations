@@ -60,7 +60,7 @@ private:
 
   double reconstruction_XiR(double);
 
-  double minibee(double, double);
+  double minbee(double, double);
   
   double calculate_timestep();
   
@@ -72,13 +72,11 @@ private:
 
   Eigen::MatrixXd Euler_flux_fn(Eigen::MatrixXd, Eigen::MatrixXd);
 
-  double lax_friedrich_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
+  Eigen::MatrixXd lax_friedrich_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
 
-  double richtmyer_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
+  Eigen::MatrixXd richtmyer_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
 
-  double half_time_step_flux(Eigen::MatrixXd, Eigen::MatrixXd, int);
-
-  double FORCE_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
+  Eigen::MatrixXd FORCE_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
 
   void solvers();
     
