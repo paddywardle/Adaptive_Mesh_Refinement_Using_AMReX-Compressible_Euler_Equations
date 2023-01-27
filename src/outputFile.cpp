@@ -4,7 +4,7 @@ void Euler1D::outputFile(std::string outputName)
 {
   std::ofstream output(outputName);
 
-  for (int i=0; i<u_prim.rows(); i++)
+  for (int i=1; i<u_prim.rows()-2; i++)
     {
       double x = x0 + (i-1) * dx;
       output<<x<<" ";

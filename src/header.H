@@ -27,7 +27,7 @@ private:
   double x1;
   double gamma;
   double C;
-  double nCells;
+  int nCells;
   double dx = (x1-x0)/nCells;
 
   Eigen::MatrixXd u;
@@ -69,6 +69,8 @@ private:
   double flux_fn_mom(double, double, double);
 
   double flux_fn_E(double, double, double);
+
+  Eigen::MatrixXd Euler_flux_fn(Eigen::MatrixXd, Eigen::MatrixXd);
 
   double lax_friedrich_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, int, double);
 

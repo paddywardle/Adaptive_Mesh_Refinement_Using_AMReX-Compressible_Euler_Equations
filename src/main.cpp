@@ -24,11 +24,9 @@ int main()
   temporal_domain.lookupValue("tStop", tStop);
   EOS.lookupValue("gamma", gamma);
   cfd_selection.lookupValue("C", C);
-
-  std::cout<<x0<<" "<<x1<<" "<<nCells<<" "<<tStart<<" "<<tStop<<" "<<gamma<<" "<<C<<std::endl;
-
+  
   Euler1D E(nCells, tStart, tStop, x0, x1, gamma, C);
-
+  
   E.run();
 
   E.outputFile("../data/results.dat");
