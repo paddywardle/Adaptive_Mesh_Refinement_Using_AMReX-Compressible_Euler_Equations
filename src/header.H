@@ -30,11 +30,11 @@ private:
   int nCells;
   double dx = (x1-x0)/nCells;
 
-  Eigen::MatrixXd u;
+  Eigen::ArrayXXf u;
 
-  Eigen::MatrixXd uPlus1;
+  Eigen::ArrayXXf uPlus1;
 
-  Eigen::MatrixXd u_prim;
+  Eigen::ArrayXXf u_prim;
 
   // private member functions
 
@@ -42,13 +42,11 @@ private:
 
   void initial_conds();
 
-  Eigen::MatrixXd prim_to_con(Eigen::MatrixXd);
+  Eigen::ArrayXXf prim_to_con(Eigen::ArrayXXf);
 
-  Eigen::MatrixXd con_to_prim(Eigen::MatrixXd);
+  Eigen::ArrayXXf con_to_prim(Eigen::ArrayXXf);
 
   double deltai_func(double, double, double, double);
-
-  double deltai_half(double, double);
   
   double reconstruction_uL(double, double, double);
 
@@ -56,11 +54,9 @@ private:
 
   double slope_limiter(double, double, double);
 
-  double reconstruction_XiL(double);
-
   double reconstruction_XiR(double);
 
-  double minbee(double, double);
+  double minbee(double);
   
   double calculate_timestep();
   
@@ -70,13 +66,13 @@ private:
 
   double flux_fn_E(double, double, double);
 
-  Eigen::MatrixXd Euler_flux_fn(Eigen::MatrixXd, Eigen::MatrixXd);
+  Eigen::ArrayXXf Euler_flux_fn(Eigen::ArrayXXf, Eigen::ArrayXXf);
 
-  Eigen::MatrixXd lax_friedrich_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
+  double lax_friedrich_flux(double, double, double, double, double);
 
-  Eigen::MatrixXd richtmyer_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
+  double richtmyer_flux(double, double, double, double, double);
 
-  Eigen::MatrixXd FORCE_flux(Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, Eigen::MatrixXd, double);
+  Eigen::ArrayXXf FORCE_flux(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, double);
 
   void solvers();
     

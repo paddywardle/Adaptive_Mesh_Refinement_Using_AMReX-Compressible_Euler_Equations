@@ -11,7 +11,7 @@ void Euler1D::initial_conds()
 	  // density
 	  u_prim(i, 0) = 1.0;
 	  // velocity
-	  u_prim(i, 1) = 0.1;
+	  u_prim(i, 1) = 0.0;
 	  // pressure
 	  u_prim(i, 2) = 1.0;
 	}
@@ -20,9 +20,9 @@ void Euler1D::initial_conds()
 	  // density
 	  u_prim(i, 0) = 0.125;
 	  // velocity
-	  u_prim(i, 1) = 0.1;
+	  u_prim(i, 1) = 0.0;
 	  // pressure
-	  u_prim(i, 2) = 1.0;
+	  u_prim(i, 2) = 0.1;
 	}
     }
 }
