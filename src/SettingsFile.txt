@@ -1,6 +1,7 @@
 CFD: {
-     SpatialDomain: {x0 = 0.0; x1 = 1.0; nCells = 10000;};
+     SpatialDomain: {x0 = 0.0; x1 = 1.0; nCells = 10;};
      TemporalDomain: {tStart = 0.0; tStop = 0.25;};
      EOS: {eos = "ideal_gas"; gamma = 1.4;};
+     Limiter: "Superbee";
      C = 0.8;
 }

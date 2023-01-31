@@ -1,13 +1,5 @@
-#include <vector>
-#include <array>
-#include <string>
-#include <cmath>
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <libconfig.h++>
-#include <eigen3/Eigen/Dense>
 #include "EulerEOS.h"
+#include "Limiters.h"
 
 class NumericalMethod
 {
@@ -15,9 +7,9 @@ public:
 
   NumericalMethod(double, int);
 
-  double reconstruction_uL(double, double, double);
+  double reconstruction_uL(double, double, double, Limiters);
 
-  double reconstruction_uR(double, double, double);
+  double reconstruction_uR(double, double, double, Limiters);
 
   Eigen::ArrayXXf FORCE_flux(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
 
@@ -36,6 +28,14 @@ private:
   double slope_limiter(double, double, double);
 
   double minbee(double);
+
+  double superbee(double);
+
+  double van_leer(double);
+
+  double van_albada(double);
+
+  double limiterXi(double, Limiters);
 
   double lax_friedrich_flux(double, double, double, double, double, double);
 

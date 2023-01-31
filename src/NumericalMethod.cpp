@@ -19,19 +19,44 @@ double NumericalMethod::slope_limiter(double u_i, double u_iPlus1, double u_iMin
   return (u_i - u_iMinus1) / (u_iPlus1 - u_i);
 }
 
-double NumericalMethod::reconstruction_uL(double u_i, double u_iPlus1, double u_iMinus1)
+double NumericalMethod::limiterXi(double r, Limiters limiter)
+{
+
+  double Xi;
+  
+  if (limiter == Limiters::Superbee)
+    {
+      Xi = superbee(r);
+    }
+  else if (limiter == Limiters::Van_Leer)
+    {
+      Xi = van_leer(r);
+    }
+  else if (limiter == Limiters::Van_Albada)
+    {
+      Xi = van_albada(r);
+    }
+  else
+    {
+      Xi = minbee(r);
+    }
+
+  return Xi;
+}
+
+double NumericalMethod::reconstruction_uL(double u_i, double u_iPlus1, double u_iMinus1, Limiters limiter)
 {
   double r = slope_limiter(u_i, u_iPlus1, u_iMinus1);
-  double Xi = minbee(r);
+  double Xi = limiterXi(r, limiter);
   double deltai = deltai_func(u_i, u_iPlus1, u_iMinus1);
 
   return u_i - 0.5 * Xi * deltai;
 }
 
-double NumericalMethod::reconstruction_uR(double u_i, double u_iPlus1, double u_iMinus1)
+double NumericalMethod::reconstruction_uR(double u_i, double u_iPlus1, double u_iMinus1, Limiters limiter)
 {
   double r = slope_limiter(u_i, u_iPlus1, u_iMinus1);
-  double Xi = minbee(r);
+  double Xi = limiterXi(r, limiter);
   double deltai = deltai_func(u_i, u_iPlus1, u_iMinus1);
 
   return u_i + 0.5 * Xi * deltai;
@@ -50,6 +75,50 @@ double NumericalMethod::minbee(double r)
   else
     {
       return r;
+    }
+}
+
+double NumericalMethod::superbee(double r)
+{
+  if (r <= 0.0)
+    {
+      return 0.0;
+    }
+  else if (r > 1.0 && r <= 0.5)
+    {
+      return 2.0 * r;
+    }
+  else if (r < 0.5 && r <= 1.0)
+    {
+      return 1.0;
+    }
+  else
+    {
+      return std::min({r, (2.0 / (1.0 + r)), 2.0});
+    }
+}
+
+double NumericalMethod::van_leer(double r)
+{
+  if (r <= 0.0)
+    {
+      return 0.0;
+    }
+  else
+    {
+      return std::min({((2.0 * r) / (1.0 + r)), (2.0 / (1.0 + r))});
+    }
+}
+
+double NumericalMethod::van_albada(double r)
+{
+  if (r <= 0.0)
+    {
+      return 0.0;
+    }
+  else
+    {
+      return std::min((r*(1.0 + r) / (1 + pow(r, 2.0))), (2.0 / (1.0 + r)));
     }
 }
 

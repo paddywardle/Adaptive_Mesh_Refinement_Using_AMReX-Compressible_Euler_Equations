@@ -124,8 +124,8 @@ void EulerSystem::Solver1D()
       {
 	for (int j=0; j<u.cols(); j++)
 	  {
-	    uL(i, j) = NumM.reconstruction_uL(u(i+1, j), u(i+2, j), u(i, j));
-	    uR(i, j) = NumM.reconstruction_uR(u(i+1, j), u(i+2, j), u(i, j));
+	    uL(i, j) = NumM.reconstruction_uL(u(i+1, j), u(i+2, j), u(i, j), Lim);
+	    uR(i, j) = NumM.reconstruction_uR(u(i+1, j), u(i+2, j), u(i, j), Lim);
 	  }
       }
 
