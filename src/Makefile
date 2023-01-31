@@ -1,23 +1,17 @@
-myProgram: main.o initial_conds.o prim_and_con.o solvers.o outputFile.o constructor.o run.o header.H
-	g++ -I/usr/include/eigen3 main.o initial_conds.o prim_and_con.o solvers.o outputFile.o constructor.o run.o -lconfig++ -o myProgram -O3
+myProgram: main.o EulerEOS.o EulerEOS.h EulerSystem.o EulerSystem.h NumericalMethod.o NumericalMethod.h SettingsData.o
+	g++ -I/usr/include/eigen3 main.o EulerEOS.o EulerSystem.o NumericalMethod.o SettingsData.o -lconfig++ -o myProgram -O3
 
 main.o: main.cpp
 	g++ -c main.cpp -o main.o -O3
 
-initial_conds.o: initial_conds.cpp
-	g++ -c initial_conds.cpp -o initial_conds.o -O3
+EulerEOS.o: EulerEOS.cpp EulerEOS.h
+	g++ -c EulerEOS.cpp -o EulerEOS.o -O3
 
-prim_and_con.o: prim_and_con.cpp
-	g++ -c prim_and_con.cpp -o prim_and_con.o -O3
+EulerSystem.o: EulerSystem.cpp EulerSystem.h
+	g++ -c EulerSystem.cpp -o EulerSystem.o -O3
 
-solvers.o: solvers.cpp
-	g++ -c solvers.cpp -o solvers.o -O3
+NumericalMethod.o: NumericalMethod.cpp NumericalMethod.h
+	g++ -c NumericalMethod.cpp -o NumericalMethod.o -O3
 
-outputFile.o: outputFile.cpp
-	g++ -c outputFile.cpp -o outputFile.o -O3
-
-run.o: run.cpp
-	g++ -c run.cpp -o run.o -O3
-
-constructor.o: constructor.cpp
-	g++ -c constructor.cpp -o constructor.o -O3
+SettingsData.o: SettingsData.cpp SettingsData.h
+	g++ -c SettingsData.cpp -o SettingsData.o -O3
