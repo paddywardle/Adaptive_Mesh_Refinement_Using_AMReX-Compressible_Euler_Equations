@@ -1,4 +1,4 @@
-**Adaptive Mesh Refinement for the compressible Euler equations using AMReX**
+**Solving the Compressible Euler Equations using the SLIC and MUSCL-Hancock schemes**
 
 **Project Overview**
 
