@@ -13,6 +13,8 @@ public:
 
   Eigen::ArrayXXf FORCE_flux(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
 
+  Eigen::ArrayXXf HLLC_flux(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
+
   Eigen::ArrayXXf uL_half_update(Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
 
   Eigen::ArrayXXf uR_half_update(Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
@@ -40,5 +42,13 @@ private:
   double lax_friedrich_flux(double, double, double, double, double, double);
 
   double richtmyer_flux(double, double, double, double, double, double);
+
+  Eigen::ArrayXXf wavespeed(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf);
+
+  Eigen::ArrayXXf uHLLC(Eigen::ArrayXXf, Eigen::ArrayXXf, double, double);
+
+  Eigen::ArrayXXf fHLLC(Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, Eigen::ArrayXXf, double, double, double);
+
+  
   
 };

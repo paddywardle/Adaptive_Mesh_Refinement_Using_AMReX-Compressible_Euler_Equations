@@ -3,6 +3,29 @@
 NumericalMethod::NumericalMethod(double gamma, int nCells)
   :gamma(gamma), nCells(nCells), eos(gamma){};
 
+Eigen::ArrayXXf NumericalMethod::wavespeed(Eigen::ArrayXXf uL, Eigen::ArrayXXf uR, Eigen::ArrayXXf uL_prim, Eigen::ArrayXXf uR_prim)
+{
+  Eigen::ArrayXXf wavespeeds(1, 3);
+
+  double csL = sqrt((gamma*uL_prim(2))/uL(0));
+  double csR = sqrt((gamma*uR_prim(2))/uR(0));
+
+  wavespeeds.col(0) = uL_prim(1) - csL;
+  wavespeeds.col(1) = uR_prim(1) + csR;
+  wavespeeds.col(2) = (uR_prim(2) - uL_prim(2) + uL(0)*uL_prim(1)*(wavespeeds(0) - uL_prim(1)) - uR(0)*uR_prim(1)*(wavespeeds(1) - uR_prim(1))) / (uL(0)*(wavespeeds(0) - uL_prim(1)) - uR(0)*(wavespeeds(1) - uR_prim(1)));
+  /*
+  std::cout<<wavespeeds<<std::endl;
+  std::cout<<uL<<std::endl;
+  std::cout<<uR<<std::endl;
+  std::cout<<uL_prim<<std::endl;
+  std::cout<<uR_prim<<std::endl;
+  std::cout<<"Num: "<<(uR_prim(2) - uL_prim(2) + uL(0)*uL_prim(1)*(wavespeeds(0) - uL_prim(1)) - uR(0)*uR_prim(1)*(wavespeeds(1) - uR_prim(1)))<<std::endl;
+  std::cout<<"Den: "<<(uL(0)*(wavespeeds(0) - uL_prim(1)) - uR(0)*(wavespeeds(1) - uR_prim(1)))<<std::endl;
+  */
+
+  return wavespeeds;
+}
+
 double NumericalMethod::deltai_func(double u_i, double u_iPlus1, double u_iMinus1, double w=0.0)
 {
   // calculates cell delta value for boundary extrapolated reconstruction
@@ -170,6 +193,71 @@ Eigen::ArrayXXf NumericalMethod::FORCE_flux(Eigen::ArrayXXf uLhalf,  Eigen::Arra
 	{
 	  fhalf(i, j) = 0.5 * (LF_flux(i, j) + RI_flux(i, j));
 	}
+    }
+
+  return fhalf;
+}
+
+Eigen::ArrayXXf NumericalMethod::uHLLC(Eigen::ArrayXXf u, Eigen::ArrayXXf u_prim, double S, double S_star)
+{
+  Eigen::ArrayXXf uHLLC_K(1, 3);
+
+  uHLLC_K(0) = u(0) * ((S - u_prim(1))/(S - S_star));
+  uHLLC_K(1) = uHLLC_K(0) * S_star;
+  uHLLC_K(2) = uHLLC_K(0) * (u(2)/u(0) + (S_star - u_prim(1)) * (S_star + u_prim(2) / (u(0)*(S - u_prim(1)))));
+  /*
+  std::cout<<u<<std::endl;
+  std::cout<<u_prim<<std::endl;
+  std::cout<<S<<" "<<S_star<<std::endl;
+  std::cout<<uHLLC_K<<std::endl;
+  std::cout<<std::endl;
+  */
+
+  return uHLLC_K;
+}
+
+Eigen::ArrayXXf NumericalMethod::fHLLC(Eigen::ArrayXXf uL, Eigen::ArrayXXf uR, Eigen::ArrayXXf uLHLLC, Eigen::ArrayXXf uRHLLC, Eigen::ArrayXXf fL, Eigen::ArrayXXf fR, double SL, double SR, double S_star)
+{
+  Eigen::ArrayXXf fHLLC(uLHLLC.rows(), uLHLLC.cols());
+  
+  if (SL >= 0)
+    {
+      fHLLC = fL;
+    }
+  else if (SL < 0 && S_star >= 0)
+    {
+      fHLLC = fL + SL*(uLHLLC - uL);
+    }
+  else if (S_star < 0 && SR >= 0)
+    {
+      fHLLC = fR + SR*(uRHLLC - uR);
+    }
+  else
+    {
+      fHLLC = fR;
+    }
+
+  return fHLLC;
+}
+
+Eigen::ArrayXXf NumericalMethod::HLLC_flux(Eigen::ArrayXXf uL, Eigen::ArrayXXf uR, Eigen::ArrayXXf uL_prim, Eigen::ArrayXXf uR_prim, double dt, double dx)
+{
+  Eigen::ArrayXXf fhalf(nCells+1, uL.cols());
+  Eigen::ArrayXXf uRflux = eos.Euler_flux_fn(uR, uR_prim);
+  Eigen::ArrayXXf uLflux = eos.Euler_flux_fn(uL, uL_prim);
+
+  Eigen::ArrayXXf uLHLLC(nCells+1, uL.cols());
+  Eigen::ArrayXXf uRHLLC(nCells+1, uR.cols());
+
+  for (int i=0; i<nCells+1; i++)
+    {
+      Eigen::ArrayXXf wavespeeds = wavespeed(uR.row(i), uL.row(i+1), uR_prim.row(i), uL_prim.row(i+1));
+      double SL=wavespeeds(0), SR=wavespeeds(1), S_star=wavespeeds(2);
+
+      uLHLLC.row(i) = uHLLC(uR.row(i), uR_prim.row(i), SL, S_star);
+      uRHLLC.row(i) = uHLLC(uL.row(i+1), uL_prim.row(i+1), SR, S_star);
+
+      fhalf.row(i) = fHLLC(uR.row(i), uL.row(i+1), uLHLLC.row(i), uRHLLC.row(i), uRflux.row(i), uLflux.row(i+1), SL, SR, S_star);
     }
 
   return fhalf;

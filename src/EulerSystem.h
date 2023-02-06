@@ -19,6 +19,7 @@ private:
   Eigen::ArrayXXf u;
   Eigen::ArrayXXf uPlus1;
   Eigen::ArrayXXf u_prim;
+  Limiters Lim;
 
   // private member functions
 

@@ -1,7 +1,25 @@
 #include "EulerSystem.h"
 
 EulerSystem::EulerSystem()
-  :SettingsData(){};
+  :SettingsData()
+{
+    if (Limiter == "Superbee")
+      {
+	Lim = Limiters::Superbee;
+      }
+    else if (Limiter == "Van_Leer")
+      {
+	Lim = Limiters::Van_Leer;
+      }
+    else if (Limiter == "Van_Albada")
+      {
+	Lim = Limiters::Van_Albada;
+      }
+    else if (Limiter == "Minbee")
+      {
+	Lim = Limiters::Minbee;
+      }
+};
 
 double EulerSystem::calculate_timestep()
 {
@@ -136,7 +154,7 @@ void EulerSystem::Solver1D()
     uLhalf_prim = eos.con_to_prim(uLhalf);
     uRhalf_prim = eos.con_to_prim(uRhalf);
     
-    flux = NumM.FORCE_flux(uLhalf, uRhalf, uLhalf_prim, uRhalf_prim, dt, dx);
+    flux = NumM.HLLC_flux(uLhalf, uRhalf, uLhalf_prim, uRhalf_prim, dt, dx);
     
     // solution update loop
     for (int i = 2; i<nCells+2; i++)
@@ -162,8 +180,9 @@ void EulerSystem::run()
   u = eos.prim_to_con(u_prim);
   
   uPlus1 = eos.prim_to_con(u_prim);
-  
+
   Solver1D();
 
   u_prim = eos.con_to_prim(u);
+
 }
