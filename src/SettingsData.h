@@ -1,7 +1,6 @@
 #include <libconfig.h++>
 #include <iostream>
 #include <string>
-#include "Limiters.h"
 
 class SettingsData
 {
@@ -20,6 +19,6 @@ class SettingsData
   double gamma;
   double C;
   int nCells;
-  Limiters Lim;
+  std::string Limiter;
   
 };

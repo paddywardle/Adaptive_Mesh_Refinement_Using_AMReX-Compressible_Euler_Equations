@@ -8,8 +8,6 @@ SettingsData::SettingsData()
 void SettingsData::readSettings()
 {
   try {
-
-    std::string limiter;
     
     libconfig::Config cfg;
     cfg.readFile("SettingsFile.txt");
@@ -25,24 +23,8 @@ void SettingsData::readSettings()
     temporal_domain.lookupValue("tStop", tStop);
     EOS.lookupValue("gamma", gamma);
     cfd_selection.lookupValue("C", C);
-    cfd_selection.lookupValue("Limiter", limiter);
-
-    if (limiter == "Superbee")
-      {
-	Lim = Limiters::Superbee;
-      }
-    else if (limiter == "Van_Leer")
-      {
-	Lim = Limiters::Van_Leer;
-      }
-    else if (limiter == "Van_Albada")
-      {
-	Lim = Limiters::Van_Albada;
-      }
-    else if (limiter == "Minbee")
-      {
-	Lim = Limiters::Minbee;
-      }
+    cfd_selection.lookupValue("Limiter", Limiter);
+    
   }
   
   catch(...)
