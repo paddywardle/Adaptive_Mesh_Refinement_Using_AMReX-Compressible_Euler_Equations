@@ -2,4 +2,4 @@
 
 **Project Overview**
 
-This project involves solving the compressible Euler equations within the framework of the AMReX software package, and investigating the effects of adaptive mesh refinement.
+This project involves solving the compressible Euler equations using both the SLIC and MUSCL-Hancock high-resolution numerical schemes.
